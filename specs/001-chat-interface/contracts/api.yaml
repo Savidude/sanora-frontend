@@ -1,0 +1,237 @@
+openapi: 3.1.0
+info:
+  title: Sanora Chat API
+  description: REST API for Finnish language learning chat interface
+  version: 1.0.0
+  
+servers:
+  - url: /api/v1
+    description: Production API
+
+paths:
+  /chat/message:
+    post:
+      tags:
+        - chat
+      summary: Send message to tutor
+      description: |
+        Send a user message to the Finnish tutor agent and receive structured feedback.
+        This endpoint handles the core conversation flow for language learning.
+      operationId: sendChatMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptRequest'
+            examples:
+              learner_message:
+                summary: Typical learner message
+                value:
+                  message: "Hei, kuinka voin tilata kahvia?"
+                  sessionId: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Successful response with tutor feedback
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+              examples:
+                feedback_response:
+                  summary: Tutor feedback with corrections
+                  value:
+                    success: true
+                    session_id: "550e8400-e29b-41d4-a716-446655440000"
+                    timestamp: "2025-11-08T12:00:00Z"
+                    data:
+                      message_type: "feedback"
+                      has_error: "MINOR"
+                      feedback_text: "Good attempt! Small correction needed."
+                      conversation_continuation: "The barista asks: Minkälaista kahvia haluaisit?"
+                      word_tips:
+                        - finnish: "tilata"
+                          english: "to order"
+                      error_details:
+                        user_mistake: "Missing accent in 'kahvia'"
+                        corrections: ["kahvia should be kahvi"]
+                        explanation: "The partitive case isn't needed here"
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Agent service temporarily unavailable"
+
+components:
+  schemas:
+    PromptRequest:
+      type: object
+      required:
+        - message
+        - sessionId
+      properties:
+        message:
+          type: string
+          minLength: 1
+          maxLength: 280
+          description: User message in Finnish (limited to 280 characters)
+          example: "Hei, kuinka voin tilata kahvia?"
+        sessionId:
+          type: string
+          format: uuid
+          description: Unique session identifier for conversation continuity
+          example: "550e8400-e29b-41d4-a716-446655440000"
+
+    AgentResponse:
+      type: object
+      required:
+        - success
+        - data
+        - session_id
+        - timestamp
+      properties:
+        success:
+          type: boolean
+          default: true
+          description: Indicates if the agent invocation was successful
+        data:
+          $ref: '#/components/schemas/TutorResponseData'
+        session_id:
+          type: string
+          format: uuid
+          description: Session identifier echoed back from request
+        timestamp:
+          type: string
+          format: date-time
+          description: Server timestamp of the response
+
+    TutorResponseData:
+      type: object
+      required:
+        - message_type
+        - has_error
+        - conversation_continuation
+        - word_tips
+      properties:
+        message_type:
+          $ref: '#/components/schemas/MessageType'
+        has_error:
+          $ref: '#/components/schemas/ErrorType'
+        feedback_text:
+          type: string
+          nullable: true
+          description: General feedback from the tutor
+        error_details:
+          $ref: '#/components/schemas/ErrorDetail'
+          nullable: true
+        greeting:
+          type: string
+          nullable: true
+          description: Optional greeting for conversation start
+        scenario:
+          type: string
+          nullable: true  
+          description: Context or scenario description
+        conversation_continuation:
+          type: string
+          description: Next part of the conversation from tutor
+        word_tips:
+          type: array
+          items:
+            $ref: '#/components/schemas/WordTip'
+          description: Vocabulary tips for difficult words
+
+    MessageType:
+      type: string
+      enum:
+        - initiation
+        - feedback
+        - conclusion
+      description: |
+        Type of message from the tutor:
+        - initiation: Starting a new conversation
+        - feedback: Providing feedback on user input
+        - conclusion: Ending the conversation
+
+    ErrorType:
+      type: string
+      enum:
+        - YES
+        - NO
+        - MINOR
+      description: |
+        Classification of errors in user input:
+        - YES: Significant errors affecting understanding
+        - NO: No errors present
+        - MINOR: Minor errors not significantly affecting understanding
+
+    ErrorDetail:
+      type: object
+      properties:
+        user_mistake:
+          type: string
+          nullable: true
+          description: The specific mistake made by the user
+        corrections:
+          type: array
+          items:
+            type: string
+          default: []
+          description: List of suggested corrections
+        explanation:
+          type: string
+          nullable: true
+          description: Explanation of the mistake and corrections
+
+    WordTip:
+      type: object
+      required:
+        - finnish
+        - english
+      properties:
+        finnish:
+          type: string
+          description: The difficult word in Finnish
+        english:
+          type: string
+          description: English translation of the word
+
+    HTTPValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+
+    ValidationError:
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      properties:
+        loc:
+          type: array
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
