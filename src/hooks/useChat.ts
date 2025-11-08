@@ -12,6 +12,7 @@ export interface UseChatReturn {
   sendMessage: (content: string) => Promise<void>;
   retryMessage: (messageId: string) => Promise<void>;
   clearError: () => void;
+  resetConversation: () => Promise<void>;
   sessionId: string;
 }
 
@@ -100,6 +101,36 @@ export const useChat = (): UseChatReturn => {
     setError(null);
   }, []);
 
+  const resetConversation = useCallback(async () => {
+    try {
+      // Cancel any pending operations
+      if (pendingMessageRef.current) {
+        pendingMessageRef.current = null;
+      }
+
+      // Clear loading and error states
+      setIsLoading(false);
+      setError(null);
+
+      // Clear messages and feedback from state (this will also clear localStorage via useLocalStorage)
+      setMessages([]);
+      setFeedback([]);
+
+      // Import conversationUtils dynamically to avoid circular dependencies
+      const { conversationUtils } = await import('../utils/conversationUtils');
+
+      // Clear all conversation data from localStorage
+      await conversationUtils.clearConversationData();
+
+      // Reset UI to initial state (this will reload the page)
+      conversationUtils.resetConversationUI();
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error('Failed to reset conversation');
+      setError(err.message);
+      throw err;
+    }
+  }, [setMessages, setFeedback]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -115,6 +146,7 @@ export const useChat = (): UseChatReturn => {
     sendMessage,
     retryMessage,
     clearError,
+    resetConversation,
     sessionId,
   };
 };

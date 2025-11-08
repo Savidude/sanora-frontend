@@ -14,6 +14,8 @@ A modern, responsive chat interface for Finnish language learning built with Rea
 - ⌨️ Keyboard shortcuts (Enter to send, Shift+Enter for new line)
 - 🌍 Finnish character support (ä, ö, å)
 - ♿ Accessibility features (ARIA labels, screen reader support)
+- 🍔 Hamburger menu for quick access to conversation actions
+- 🔄 Start new conversation option with data reset
 
 ## Tech Stack
 
@@ -71,14 +73,78 @@ src/
 ├── components/
 │   ├── chat/          # Chat-specific components
 │   ├── ui/            # Reusable UI components
-│   └── layout/        # Layout components
+│   └── layout/        # Layout components (ChatLayout, HamburgerMenu)
 ├── pages/             # Route components
 ├── services/          # API integration
-├── hooks/             # Custom React hooks
-├── types/             # TypeScript type definitions
-├── utils/             # Utility functions
+├── hooks/             # Custom React hooks (useChat, useHamburgerMenu, useLocalStorage)
+├── types/             # TypeScript type definitions (chat, menu, storage)
+├── utils/             # Utility functions (conversationUtils, formatting, validation)
 └── styles/            # CSS modules
 ```
+
+## Component Usage
+
+### HamburgerMenu Component
+
+The `HamburgerMenu` component provides navigation options for the chat interface.
+
+```tsx
+import { HamburgerMenu } from './components/layout/HamburgerMenu';
+import { useHamburgerMenu } from './hooks/useHamburgerMenu';
+
+const MyComponent = () => {
+  const menuState = useHamburgerMenu();
+  
+  const menuItems = [
+    {
+      id: 'new-conversation',
+      label: 'Start New Conversation',
+      onClick: () => console.log('Reset conversation'),
+      variant: 'danger',
+    },
+  ];
+
+  return (
+    <div ref={menuState.menuRef}>
+      <HamburgerMenu
+        isOpen={menuState.isOpen}
+        onToggle={menuState.toggle}
+        onClose={menuState.close}
+        items={menuItems}
+      />
+    </div>
+  );
+};
+```
+
+### useHamburgerMenu Hook
+
+Custom hook for managing hamburger menu state and behavior.
+
+**Features:**
+- Menu open/close state management
+- Outside click detection
+- Escape key handling
+- Focus management for accessibility
+
+**Returns:**
+- `isOpen`: Current menu state (boolean)
+- `toggle()`: Toggle menu open/closed
+- `open()`: Open menu
+- `close()`: Close menu
+- `menuRef`: Ref for menu container (for outside click detection)
+
+### Conversation Reset
+
+The application includes a conversation reset feature accessible via the hamburger menu:
+
+1. Click the hamburger menu icon in the top-left corner
+2. Select "Start New Conversation"
+3. Conversation data is cleared from browser storage
+4. UI resets to the initial welcome state
+5. Page automatically reloads to ensure clean state
+
+**Note**: This action permanently deletes all conversation history. Use with caution.
 
 ## Testing
 

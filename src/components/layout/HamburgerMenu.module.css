@@ -1,0 +1,233 @@
+/* Hamburger Menu Component Styles - Mobile First */
+
+/* Container positioned in top-left corner */
+.hamburgerMenu {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1001;
+}
+
+/* Hamburger Icon - Mobile First with 44px touch target */
+.menuIcon {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 1001;
+}
+
+/* Individual bars in hamburger icon */
+.iconBar {
+  width: 24px;
+  height: 3px;
+  background-color: #333;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* Slide-out Menu Panel with Hardware-Accelerated Animation */
+.menuPanel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  max-width: 80vw;
+  height: 100vh;
+  background-color: #ffffff;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  padding: 60px 0 20px;
+  overflow-y: auto;
+  z-index: 1000;
+  /* Hardware-accelerated slide animation */
+  transform: translateX(0);
+  transition: transform 0.3s ease-out;
+  will-change: transform;
+}
+
+/* Animation states for opening/closing */
+.menuPanel--opening {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.menuPanel--closing {
+  animation: slideOut 0.3s ease-out forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* Menu Item */
+.menuItem {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 16px 20px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  min-height: 44px; /* Touch target minimum */
+}
+
+/* Disabled state styling */
+.menuItem:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: transparent;
+}
+
+.menuItem:not(:disabled):active {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.menuItemIcon {
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.menuItemLabel {
+  flex: 1;
+}
+
+/* Danger variant styling for destructive actions */
+.menuItemDanger {
+  color: #d32f2f;
+}
+
+.menuItemDanger:not(:disabled):active {
+  background-color: rgba(211, 47, 47, 0.08);
+}
+
+/* Background overlay with fade animation */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Loading indicator for menu items */
+.loadingSpinner {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Desktop hover states - only on devices with hover capability */
+@media (hover: hover) and (pointer: fine) {
+  .menuIcon:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+
+  .menuItem:not(:disabled):hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+
+  .menuItemDanger:not(:disabled):hover {
+    background-color: rgba(211, 47, 47, 0.04);
+  }
+}
+
+/* Tablet breakpoint (768px+) */
+@media (min-width: 768px) {
+  .hamburgerMenu {
+    top: 20px;
+    left: 20px;
+  }
+
+  .menuPanel {
+    width: 320px;
+  }
+
+  .menuItem {
+    font-size: 18px;
+    padding: 18px 24px;
+  }
+}
+
+/* Desktop breakpoint (1024px+) */
+@media (min-width: 1024px) {
+  .hamburgerMenu {
+    top: 24px;
+    left: 24px;
+  }
+
+  .menuIcon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .iconBar {
+    width: 28px;
+  }
+}
+
+/* Performance optimizations for 60fps animations */
+@media (prefers-reduced-motion: no-preference) {
+  .menuPanel,
+  .overlay,
+  .menuIcon,
+  .iconBar {
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Reduce animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .menuPanel,
+  .overlay,
+  .menuIcon,
+  .iconBar {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
