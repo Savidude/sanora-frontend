@@ -1,12 +1,12 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { UserMessage, TeacherFeedback } from '../types/chat';
+import { UserMessage, TeacherResponseProps } from '../types/chat';
 import { chatService } from '../services/chatService';
 import { generateSessionId } from '../utils/validation';
 import { useLocalStorage } from './useLocalStorage';
 
 export interface UseChatReturn {
   messages: UserMessage[];
-  feedback: TeacherFeedback[];
+  feedback: TeacherResponseProps[];
   isLoading: boolean;
   error: string | null;
   sendMessage: (content: string) => Promise<void>;
@@ -21,7 +21,7 @@ export const useChat = (): UseChatReturn => {
 
   // Persistent storage for messages and feedback
   const [messages, setMessages] = useLocalStorage<UserMessage[]>('sanora-messages', []);
-  const [feedback, setFeedback] = useLocalStorage<TeacherFeedback[]>('sanora-feedback', []);
+  const [feedback, setFeedback] = useLocalStorage<TeacherResponseProps[]>('sanora-feedback', []);
 
   // Transient UI state
   const [isLoading, setIsLoading] = useState(false);
@@ -63,9 +63,9 @@ export const useChat = (): UseChatReturn => {
           prev.map(msg => (msg.id === newMessage.id ? { ...msg, status: 'sent' } : msg))
         );
 
-        // Map response to feedback and add to state
-        const teacherFeedback = chatService.mapResponseToFeedback(response);
-        setFeedback(prev => [...prev, teacherFeedback]);
+        // Map response to new teacher response structure and add to state
+        const teacherResponse = chatService.mapApiResponseToTeacherResponse(response);
+        setFeedback(prev => [...prev, teacherResponse]);
 
         pendingMessageRef.current = null;
       } catch (err) {

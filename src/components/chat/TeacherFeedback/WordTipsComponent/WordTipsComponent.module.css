@@ -1,0 +1,128 @@
+/* Word Tips Section */
+.wordTipsSection {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #1f2937;
+}
+
+.tipsContainer {
+  display: grid;
+  gap: 0.75rem;
+}
+
+/* Card Layout (default) - mobile-first */
+.tipsContainer.card {
+  grid-template-columns: 1fr;
+}
+
+/* Inline Layout */
+.tipsContainer.inline {
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.tipCard {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  transition: box-shadow 0.2s ease;
+  min-height: 44px; /* Touch-friendly target */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.tipCard:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.finnishWord {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+  /* Support Finnish special characters */
+  font-feature-settings: 'kern' 1;
+}
+
+.englishTranslation {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.expandButton {
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  min-height: 44px; /* Touch-friendly */
+  width: 100%;
+}
+
+.expandButton:hover {
+  background-color: #2563eb;
+}
+
+.expandButton:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.fallback {
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+/* Tablet breakpoint */
+@media (min-width: 640px) {
+  .tipsContainer.card {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .expandButton {
+    width: auto;
+  }
+}
+
+/* Desktop breakpoint */
+@media (min-width: 768px) {
+  .wordTipsSection {
+    padding: 1.25rem;
+  }
+  
+  .tipsContainer.card {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  
+  .tipCard {
+    padding: 1rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+}
+
+/* Large desktop */
+@media (min-width: 1024px) {
+  .tipsContainer.card {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

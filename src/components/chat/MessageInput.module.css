@@ -4,7 +4,43 @@
   padding: var(--spacing-md);
   background-color: var(--color-background-white);
   border-top: 1px solid var(--color-border);
-  align-items: flex-end;
+  align-items: center;
+}
+
+.sendButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background-color: var(--color-primary-blue);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.sendButton:hover:not(:disabled) {
+  background-color: #1e5cbf;
+  transform: scale(1.05);
+}
+
+.sendButton:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.sendButton:disabled {
+  background-color: var(--color-background-gray);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.sendButton svg {
+  width: 20px;
+  height: 20px;
 }
 
 .inputWrapper {
@@ -74,17 +110,4 @@
 .errorText {
   font-size: var(--font-size-sm);
   color: var(--color-error-red);
-}
-
-/* Mobile responsive */
-@media (max-width: 480px) {
-  .form {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--spacing-sm);
-  }
-  
-  .form button {
-    width: 100%;
-  }
 }

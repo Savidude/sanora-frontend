@@ -2,13 +2,13 @@ import React, { useRef, useEffect } from 'react';
 import { MessageInput } from './MessageInput';
 import { MessageBubble } from './MessageBubble';
 import { LoadingIndicator } from './LoadingIndicator';
-import { TeacherFeedback as TeacherFeedbackComponent } from './TeacherFeedback';
-import { UserMessage, TeacherFeedback } from '../../types/chat';
+import { TeacherResponse } from './TeacherResponse';
+import { UserMessage, TeacherResponseProps } from '../../types/chat';
 import styles from './ChatInterface.module.css';
 
 export interface ChatInterfaceProps {
   messages: UserMessage[];
-  feedback: TeacherFeedback[];
+  feedback: TeacherResponseProps[];
   onSendMessage: (message: string) => void;
   isLoading?: boolean;
 }
@@ -20,17 +20,35 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   isLoading = false,
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastFeedbackRef = useRef<HTMLDivElement>(null);
+  const previousFeedbackCount = useRef(feedback.length);
+  const previousMessageCount = useRef(messages.length);
 
-  // Auto-scroll to bottom when new messages arrive
+  // Scroll to bottom when user sends a message
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, feedback]);
+    if (messages.length > previousMessageCount.current && messagesEndRef.current) {
+      const container = messagesEndRef.current.parentElement;
+      if (container) {
+        container.scrollTop = container.scrollHeight;
+      }
+    }
+    previousMessageCount.current = messages.length;
+  }, [messages]);
+
+  // Scroll to top of new feedback when it arrives
+  useEffect(() => {
+    // Only scroll when new feedback is added
+    if (feedback.length > previousFeedbackCount.current && lastFeedbackRef.current) {
+      lastFeedbackRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    previousFeedbackCount.current = feedback.length;
+  }, [feedback]);
 
   const hasMessages = messages.length > 0 || feedback.length > 0;
 
   // Interleave messages and feedback chronologically
   const renderConversation = () => {
-    const items: Array<{ type: 'message' | 'feedback'; data: UserMessage | TeacherFeedback }> =
+    const items: Array<{ type: 'message' | 'feedback'; data: UserMessage | TeacherResponseProps }> =
       [];
 
     messages.forEach(msg => {
@@ -57,8 +75,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         const message = item.data as UserMessage;
         return <MessageBubble key={`msg-${message.id}-${index}`} message={message} />;
       } else {
-        const feedbackData = item.data as TeacherFeedback;
-        return <TeacherFeedbackComponent key={`fb-${feedbackData.id}-${index}`} feedback={feedbackData} />;
+        const responseData = item.data as TeacherResponseProps;
+        const isLastFeedback = index === items.length - 1 && item.type === 'feedback';
+        return (
+          <div key={`teacher-${responseData.id}-${index}`} ref={isLastFeedback ? lastFeedbackRef : null}>
+            <TeacherResponse response={responseData} />
+          </div>
+        );
       }
     });
   };

@@ -1,6 +1,6 @@
 import apiClient from './api';
 import { PromptRequest, AgentResponse, TutorResponseData } from './types/apiTypes';
-import { TeacherFeedback, FeedbackComponent } from '../types/chat';
+import { TeacherFeedback, FeedbackComponent, TeacherResponseProps, InitiationMessageData, ContinuationMessageData } from '../types/chat';
 
 /**
  * Send a message to the chat API and receive teacher feedback
@@ -102,7 +102,45 @@ const getBorderColor = (
   }
 };
 
+/**
+ * Map API response to new TeacherResponseProps structure for structured components
+ */
+export const mapApiResponseToTeacherResponse = (
+  response: AgentResponse
+): TeacherResponseProps => {
+  const { data, session_id, timestamp } = response;
+  
+  // Map API response to component structure based on message type
+  const mappedData = data.message_type === 'initiation' 
+    ? {
+        greeting: data.greeting || '',
+        scenario: data.scenario || '',
+        conversationContinuation: data.conversation_continuation,
+        wordTips: data.word_tips || []
+      } as InitiationMessageData
+    : {
+        feedbackText: data.feedback_text,
+        errorDetails: data.error_details ? {
+          userMistake: data.error_details.user_mistake,
+          corrections: data.error_details.corrections,
+          explanation: data.error_details.explanation
+        } : undefined,
+        conversationContinuation: data.conversation_continuation,
+        wordTips: data.word_tips || []
+      } as ContinuationMessageData;
+
+  return {
+    id: `teacher-response-${Date.now()}`,
+    messageType: data.message_type,
+    hasError: data.has_error,
+    timestamp: new Date(timestamp),
+    sessionId: session_id,
+    data: mappedData
+  };
+};
+
 export const chatService = {
   sendMessage,
   mapResponseToFeedback,
+  mapApiResponseToTeacherResponse,
 };

@@ -1,0 +1,203 @@
+/* Initiation Message Container */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.container.mobile {
+  gap: 0.875rem;
+  padding: 0.875rem;
+}
+
+.container.desktop {
+  gap: 1.25rem;
+  padding: 1.25rem;
+}
+
+/* Section Styles */
+.greetingSection,
+.scenarioSection,
+.promptSection {
+  padding: 1rem;
+  border-radius: 0.375rem;
+  background-color: #f9fafb;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Greeting Section */
+.greetingSection {
+  border-left: 4px solid #3b82f6;
+}
+
+.greetingText {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: #1f2937;
+  margin: 0;
+  /* Support Finnish special characters */
+  font-feature-settings: 'kern' 1;
+}
+
+.greetingText strong {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.greetingText em {
+  font-style: italic;
+}
+
+.greetingText code {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+  color: #374151;
+}
+
+/* Scenario Section */
+.scenarioSection {
+  border-left: 4px solid #8b5cf6;
+}
+
+.scenarioText {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #1f2937;
+  margin: 0;
+}
+
+.scenarioText strong {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.scenarioText em {
+  font-style: italic;
+}
+
+.scenarioText code {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+  color: #374151;
+}
+
+/* Prompt Section */
+.promptSection {
+  border-left: 4px solid #10b981;
+  background-color: #ecfdf5;
+}
+
+.promptText {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.promptText strong {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.promptText em {
+  font-style: italic;
+}
+
+.promptText code {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+  color: #374151;
+}
+
+/* Fallback text for missing data */
+.fallback {
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+/* Tablet breakpoint */
+@media (min-width: 640px) {
+  .container {
+    padding: 1.25rem;
+    gap: 1.25rem;
+  }
+  
+  .greetingSection,
+  .scenarioSection,
+  .promptSection {
+    padding: 1.25rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.125rem;
+  }
+  
+  .greetingText {
+    font-size: 1.25rem;
+  }
+  
+  .scenarioText,
+  .promptText {
+    font-size: 1.0625rem;
+  }
+}
+
+/* Desktop breakpoint */
+@media (min-width: 768px) {
+  .container {
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+  
+  .greetingSection,
+  .scenarioSection,
+  .promptSection {
+    padding: 1.5rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .greetingText {
+    font-size: 1.375rem;
+  }
+  
+  .scenarioText,
+  .promptText {
+    font-size: 1.125rem;
+  }
+}
+
+/* Ensure minimum text size for accessibility */
+@media (max-width: 639px) {
+  .greetingText,
+  .scenarioText,
+  .promptText {
+    font-size: max(14px, 1rem); /* Minimum 14px as per spec */
+  }
+  
+  .sectionTitle {
+    font-size: max(14px, 1rem);
+  }
+}
