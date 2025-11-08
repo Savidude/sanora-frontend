@@ -48,3 +48,68 @@ export interface ChatUIState {
   isLoading: boolean;
   error: string | null;
 }
+
+// Teacher Response Component Types
+export interface InitiationMessageData {
+  greeting: string;
+  scenario: string;
+  conversationContinuation: string;
+  wordTips: WordTip[];
+}
+
+export interface ContinuationMessageData {
+  feedbackText?: string;
+  errorDetails?: ErrorDetail;
+  conversationContinuation: string;
+  wordTips: WordTip[];
+}
+
+export interface WordTip {
+  finnish: string;
+  english: string;
+}
+
+export interface ErrorDetail {
+  userMistake?: string;
+  corrections: string[];
+  explanation?: string;
+}
+
+export type ErrorType = 'YES' | 'NO' | 'MINOR';
+
+export interface ErrorClassificationStyle {
+  backgroundColor: string;
+  textColor: string;
+  borderColor: string;
+  label: string;
+}
+
+export const ERROR_STYLES: Record<ErrorType, ErrorClassificationStyle> = {
+  'YES': {
+    backgroundColor: '#ef4444',
+    textColor: '#ffffff',
+    borderColor: '#dc2626',
+    label: 'Error'
+  },
+  'MINOR': {
+    backgroundColor: '#f59e0b',
+    textColor: '#ffffff',
+    borderColor: '#d97706',
+    label: 'Minor Error'
+  },
+  'NO': {
+    backgroundColor: '#10b981',
+    textColor: '#ffffff',
+    borderColor: '#059669',
+    label: 'Correct'
+  }
+};
+
+export interface TeacherResponseProps {
+  id: string;
+  messageType: 'initiation' | 'feedback' | 'conclusion';
+  hasError: ErrorType;
+  timestamp: Date;
+  sessionId: string;
+  data: InitiationMessageData | ContinuationMessageData;
+}

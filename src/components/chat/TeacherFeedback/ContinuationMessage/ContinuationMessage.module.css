@@ -1,0 +1,269 @@
+/* Continuation Message Container */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.container.mobile {
+  gap: 0.875rem;
+  padding: 0.875rem;
+}
+
+.container.desktop {
+  gap: 1.25rem;
+  padding: 1.25rem;
+}
+
+/* Section Styles */
+.feedbackSection,
+.generalFeedback,
+.continuationSection {
+  padding: 1rem;
+  border-radius: 0.375rem;
+  background-color: #f9fafb;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Feedback Section */
+.feedbackSection {
+  border-left: 4px solid #ef4444;
+}
+
+.mistake,
+.corrections,
+.explanation {
+  margin-bottom: 0.75rem;
+}
+
+.mistake:last-child,
+.corrections:last-child,
+.explanation:last-child {
+  margin-bottom: 0;
+}
+
+.mistakeLabel,
+.correctionsLabel,
+.explanationLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.mistakeText {
+  margin: 0;
+  padding: 0.5rem;
+  background-color: #fee2e2;
+  border-radius: 0.25rem;
+  color: #991b1b;
+  font-size: 1rem;
+  line-height: 1.5;
+  /* Support Finnish special characters */
+  font-feature-settings: 'kern' 1;
+}
+
+.correctionsList {
+  margin: 0;
+  padding-left: 1.5rem;
+  list-style-type: disc;
+}
+
+.correctionItem {
+  margin-bottom: 0.25rem;
+  color: #059669;
+  font-size: 1rem;
+  line-height: 1.5;
+  /* Support Finnish special characters */
+  font-feature-settings: 'kern' 1;
+}
+
+.correctionItem:last-child {
+  margin-bottom: 0;
+}
+
+.explanationText {
+  margin: 0;
+  color: #1f2937;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.explanationText strong {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.explanationText em {
+  font-style: italic;
+}
+
+.explanationText code {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+  color: #374151;
+}
+
+/* General Feedback */
+.generalFeedback {
+  border-left: 4px solid #3b82f6;
+}
+
+.feedbackText {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.feedbackText strong {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.feedbackText em {
+  font-style: italic;
+}
+
+.feedbackText code {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+  color: #374151;
+}
+
+/* Continuation Section */
+.continuationSection {
+  border-left: 4px solid #10b981;
+  background-color: #ecfdf5;
+}
+
+.continuationPrompt {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.continuationPrompt strong {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.continuationPrompt em {
+  font-style: italic;
+}
+
+.continuationPrompt code {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+  color: #374151;
+}
+
+/* Fallback text for missing data */
+.fallback {
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+/* Tablet breakpoint */
+@media (min-width: 640px) {
+  .container {
+    padding: 1.25rem;
+    gap: 1.25rem;
+  }
+  
+  .feedbackSection,
+  .generalFeedback,
+  .continuationSection {
+    padding: 1.25rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.125rem;
+  }
+  
+  .mistakeText,
+  .correctionItem,
+  .feedbackText,
+  .continuationPrompt {
+    font-size: 1.0625rem;
+  }
+}
+
+/* Desktop breakpoint */
+@media (min-width: 768px) {
+  .container {
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+  
+  .feedbackSection,
+  .generalFeedback,
+  .continuationSection {
+    padding: 1.5rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  
+  .mistakeText,
+  .correctionItem,
+  .feedbackText,
+  .continuationPrompt {
+    font-size: 1.125rem;
+  }
+  
+  .explanationText {
+    font-size: 1rem;
+  }
+}
+
+/* Ensure minimum text size for accessibility */
+@media (max-width: 639px) {
+  .mistakeText,
+  .correctionItem,
+  .explanationText,
+  .feedbackText,
+  .continuationPrompt {
+    font-size: max(14px, 1rem); /* Minimum 14px as per spec */
+  }
+  
+  .sectionTitle {
+    font-size: max(14px, 1rem);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .feedbackSection,
+  .generalFeedback,
+  .continuationSection {
+    border-left-width: 6px;
+  }
+  
+  .mistakeText {
+    border: 2px solid #991b1b;
+  }
+}

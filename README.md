@@ -6,11 +6,14 @@ A modern, responsive chat interface for Finnish language learning built with Rea
 
 - 🎯 Clean, modern chat interface with responsive design
 - 💬 Real-time message sending and receiving
-- 📚 Structured teacher feedback with semantic color coding
-- 📱 Mobile-first responsive design (480px breakpoint)
+- 📚 Structured teacher feedback with greeting, scenario, prompt, and word tips
+- 🎨 Visual error classification with color-coded indicators
+- 📱 Mobile-first responsive design (640px, 768px, 1024px breakpoints)
 - ✨ 280-character message limit with real-time validation
 - 🔄 Session persistence across browser sessions
 - ⌨️ Keyboard shortcuts (Enter to send, Shift+Enter for new line)
+- 🌍 Finnish character support (ä, ö, å)
+- ♿ Accessibility features (ARIA labels, screen reader support)
 
 ## Tech Stack
 
@@ -50,6 +53,12 @@ npm run lint
 ### Development Server
 
 The development server runs at `http://localhost:3000` with hot module replacement enabled.
+
+**Note**: After pulling the latest changes with the new teacher response components, you may need to clear your browser's localStorage to remove old data format:
+1. Open browser DevTools (F12)
+2. Go to Application/Storage tab
+3. Clear localStorage for localhost:3000
+4. Refresh the page
 
 ### API Configuration
 

@@ -1,0 +1,89 @@
+/* Error Classification Component */
+.errorClassification {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  text-align: center;
+  border-width: 2px;
+  border-style: solid;
+  transition: transform 0.2s ease;
+  margin-bottom: 1rem;
+}
+
+.errorClassification:hover {
+  transform: translateY(-1px);
+}
+
+/* Size variants */
+.errorClassification.small {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  min-height: 28px;
+}
+
+.errorClassification.medium {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  min-height: 36px;
+}
+
+.errorClassification.large {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  min-height: 44px; /* Touch-friendly target on mobile */
+}
+
+.label {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Mobile-first: default to large for touch targets */
+@media (max-width: 639px) {
+  .errorClassification {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    font-size: max(14px, 0.875rem); /* Minimum 14px */
+    min-height: 44px;
+  }
+}
+
+/* Tablet and up: can use specified sizes */
+@media (min-width: 640px) {
+  .errorClassification {
+    width: auto;
+  }
+}
+
+/* Desktop: enhanced styling */
+@media (min-width: 768px) {
+  .errorClassification.small {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+  
+  .errorClassification.medium {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9375rem;
+  }
+  
+  .errorClassification.large {
+    padding: 0.875rem 1.75rem;
+    font-size: 1.125rem;
+  }
+}
+
+/* Focus styles for accessibility */
+.errorClassification:focus {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .errorClassification {
+    border-width: 3px;
+  }
+}

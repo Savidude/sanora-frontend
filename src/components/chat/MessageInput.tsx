@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Button } from '../ui/Button';
 import styles from './MessageInput.module.css';
 import { validateMessage, getRemainingChars } from '../../utils/validation';
 
@@ -65,33 +64,26 @@ export const MessageInput: React.FC<MessageInputProps> = ({
           placeholder={placeholder}
           disabled={disabled}
           className={`${styles.textarea} ${isOverLimit ? styles.error : ''}`}
-          rows={3}
+          rows={2}
           aria-label="Message input"
-          aria-describedby={error ? 'input-error' : 'char-count'}
+          aria-describedby={error ? 'input-error' : undefined}
         />
-        <div className={styles.footer}>
-          <span
-            id="char-count"
-            className={`${styles.charCount} ${isOverLimit ? styles.overLimit : ''}`}
-          >
-            {remaining} characters remaining
-          </span>
-          {error && (
+        {error && (
+          <div className={styles.footer}>
             <span id="input-error" className={styles.errorText} role="alert">
               {error}
             </span>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-      <Button
+      <button
         type="submit"
         disabled={!canSend}
-        icon={<ArrowIcon />}
-        iconPosition="right"
+        className={styles.sendButton}
         aria-label="Send message"
       >
-        Send
-      </Button>
+        <ArrowIcon />
+      </button>
     </form>
   );
 };
