@@ -1,0 +1,215 @@
+/**
+ * ConfigError Styles
+ * Mobile-first responsive design
+ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+}
+
+.card {
+  width: 100%;
+  max-width: 500px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.5rem;
+  color: #ef4444;
+}
+
+.title {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.message {
+  margin: 0 0 1.5rem 0;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.details {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  text-align: left;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.detailsSummary {
+  cursor: pointer;
+  font-weight: 500;
+  color: #374151;
+  user-select: none;
+}
+
+.detailsSummary:hover {
+  color: #1f2937;
+}
+
+.errorText {
+  margin: 0.75rem 0 0 0;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  font-family: 'Monaco', 'Courier New', monospace;
+  color: #dc2626;
+  background-color: #ffffff;
+  border-radius: 4px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.retryButton {
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #3b82f6;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.retryButton:hover {
+  background-color: #2563eb;
+}
+
+.retryButton:active {
+  transform: scale(0.98);
+}
+
+.retryButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.loginLink {
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #3b82f6;
+  background-color: transparent;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-block;
+}
+
+.loginLink:hover {
+  background-color: #eff6ff;
+}
+
+.loginLink:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.help {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+/* Tablet and Desktop (768px and up) */
+@media (min-width: 768px) {
+  .container {
+    padding: 2rem;
+  }
+
+  .card {
+    padding: 2.5rem 2rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .retryButton,
+  .loginLink {
+    transition: none;
+  }
+
+  .retryButton:active {
+    transform: none;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .container {
+    background-color: #111827;
+  }
+
+  .card {
+    background: #1f2937;
+  }
+
+  .title {
+    color: #f9fafb;
+  }
+
+  .message {
+    color: #d1d5db;
+  }
+
+  .details {
+    background-color: #374151;
+    border-color: #4b5563;
+  }
+
+  .detailsSummary {
+    color: #e5e7eb;
+  }
+
+  .detailsSummary:hover {
+    color: #f9fafb;
+  }
+
+  .errorText {
+    background-color: #1f2937;
+    color: #fca5a5;
+  }
+
+  .help {
+    color: #6b7280;
+  }
+
+  .loginLink:hover {
+    background-color: #1e3a8a;
+  }
+}

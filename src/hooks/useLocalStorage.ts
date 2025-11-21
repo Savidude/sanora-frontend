@@ -58,5 +58,83 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [key]);
 
-  return [storedValue, setValue] as const;
+  // Method to remove the item from localStorage
+  const removeValue = () => {
+    try {
+      window.localStorage.removeItem(key);
+      setStoredValue(initialValue);
+    } catch (error) {
+      console.error(`Error removing localStorage key "${key}":`, error);
+    }
+  };
+
+  return [storedValue, setValue, removeValue] as const;
+}
+
+/**
+ * Hook for secure session data storage
+ * Adds expiration and validation for sensitive session data
+ */
+export function useSecureStorage<T>(
+  key: string,
+  initialValue: T,
+  expirationMinutes: number = 60
+) {
+  const wrappedKey = `secure_${key}`;
+  
+  const [storedValue, setStoredValue] = useState<T>(() => {
+    try {
+      const item = window.localStorage.getItem(wrappedKey);
+      if (!item) return initialValue;
+      
+      const parsed = JSON.parse(item);
+      
+      // Check expiration
+      if (parsed.expiresAt && Date.now() > parsed.expiresAt) {
+        window.localStorage.removeItem(wrappedKey);
+        return initialValue;
+      }
+      
+      return parsed.value as T;
+    } catch (error) {
+      console.error(`Error loading secure storage key "${key}":`, error);
+      return initialValue;
+    }
+  });
+
+  const setValue = (value: T | ((val: T) => T)) => {
+    try {
+      setStoredValue((currentValue) => {
+        const valueToStore = value instanceof Function ? value(currentValue) : value;
+        
+        const expiresAt = Date.now() + expirationMinutes * 60 * 1000;
+        const wrapped = {
+          value: valueToStore,
+          expiresAt,
+          createdAt: Date.now(),
+        };
+        
+        try {
+          window.localStorage.setItem(wrappedKey, JSON.stringify(wrapped));
+        } catch (error) {
+          console.error(`Error saving secure storage key "${key}":`, error);
+        }
+        
+        return valueToStore;
+      });
+    } catch (error) {
+      console.error(`Error in setValue for secure storage key "${key}":`, error);
+    }
+  };
+
+  const removeValue = () => {
+    try {
+      window.localStorage.removeItem(wrappedKey);
+      setStoredValue(initialValue);
+    } catch (error) {
+      console.error(`Error removing secure storage key "${key}":`, error);
+    }
+  };
+
+  return [storedValue, setValue, removeValue] as const;
 }
