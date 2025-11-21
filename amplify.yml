@@ -1,0 +1,142 @@
+version: 1
+backend:
+  phases:
+    preBuild:
+      commands:
+        - echo "Installing backend dependencies"
+        - npm ci --cache .npm --prefer-offline
+    build:
+      commands:
+        - echo "Deploying Amplify Gen 2 backend"
+        - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+        # Fetch configuration from SSM Parameter Store and inject as build-time env vars
+        - echo "Fetching configuration from SSM Parameter Store..."
+        - export VITE_COGNITO_USER_POOL_ID=$(aws ssm get-parameter --name "/sanora/cognito/user_pool_id" --query "Parameter.Value" --output text --region $AWS_REGION)
+        - export VITE_COGNITO_CLIENT_ID=$(aws ssm get-parameter --name "/sanora/cognito/user_pool_client_id" --query "Parameter.Value" --output text --region $AWS_REGION)
+        - export VITE_API_URL=$(aws ssm get-parameter --name "/sanora/apigw/messaging_service_url" --query "Parameter.Value" --output text --region $AWS_REGION)
+        - export VITE_AWS_REGION=$AWS_REGION
+        - echo "✓ Configuration loaded from SSM"
+    build:
+      commands:
+        - echo "Building frontend application"
+        - npm run build
+    postBuild:
+      commands:
+        # TEMPORARILY DISABLED: Run E2E tests after build but before deployment
+        - echo "Tests temporarily skipped"
+        # - echo "Running E2E tests"
+        # - |
+        #   if [ "$AWS_BRANCH" = "main" ] || [ "$AWS_BRANCH" = "004-aws-auth-integration" ]; then
+        #     # Set up test environment variables from SSM
+        #     export COGNITO_USER_POOL_ID=$(aws ssm get-parameter --name "/sanora/cognito/user_pool_id" --query "Parameter.Value" --output text --region $AWS_REGION)
+        #     export COGNITO_CLIENT_ID=$(aws ssm get-parameter --name "/sanora/cognito/user_pool_client_id" --query "Parameter.Value" --output text --region $AWS_REGION)
+        #     export VITE_API_BASE_URL=$(aws ssm get-parameter --name "/sanora/apigw/messaging_service_url" --query "Parameter.Value" --output text --region $AWS_REGION)
+        #     
+        #     # Create test environment file
+        #     cat > .env.test << EOF
+        #   COGNITO_USER_POOL_ID=$COGNITO_USER_POOL_ID
+        #   COGNITO_CLIENT_ID=$COGNITO_CLIENT_ID
+        #   AWS_REGION=$AWS_REGION
+        #   VITE_API_BASE_URL=$VITE_API_BASE_URL
+        #   CI=true
+        #   NODE_ENV=test
+        #   EOF
+        #     
+        #     # Run E2E tests in headless mode
+        #     npm run test:e2e -- --reporter=junit
+        #     
+        #     # Upload test results to S3 for reporting
+        #     aws s3 cp playwright-report/ s3://$TEST_RESULTS_BUCKET/e2e-reports/$AWS_COMMIT_ID/ --recursive || echo "Failed to upload test results"
+        #   else
+        #     echo "Skipping E2E tests for feature branch"
+        #   fi
+        # 
+        # # Run unit tests
+        # - npm run test -- --coverage --watchAll=false
+        # 
+        # # Lint and format check
+        # - npm run lint
+        # 
+        # # Upload coverage reports
+        # - |
+        #   if [ -d "coverage" ]; then
+        #     aws s3 cp coverage/ s3://$TEST_RESULTS_BUCKET/coverage/$AWS_COMMIT_ID/ --recursive || echo "Failed to upload coverage"
+        #   fi
+  artifacts:
+    baseDirectory: dist
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+      - .playwright/**/*
+
+# Environment-specific configuration
+# environments:
+#   main:
+#     environmentVariables:
+#       NODE_ENV: production
+#       VITE_APP_ENV: production
+#     customHeaders:
+#       - pattern: '**/*'
+#         headers:
+#           # Security headers
+#           Strict-Transport-Security: 'max-age=31536000; includeSubDomains'
+#           X-Content-Type-Options: 'nosniff'
+#           X-Frame-Options: 'DENY'
+#           X-XSS-Protection: '1; mode=block'
+#           Referrer-Policy: 'strict-origin-when-cross-origin'
+#           # CSP for security
+#           Content-Security-Policy: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.amazonaws.com https://*.cognito-idp.*.amazonaws.com"
+
+#   develop:
+#     environmentVariables:
+#       NODE_ENV: staging
+#       VITE_APP_ENV: staging
+#     customHeaders:
+#       - pattern: '**/*'
+#         headers:
+#           # More relaxed headers for staging
+#           X-Robots-Tag: 'noindex'
+
+# Test configuration
+# test:
+#   phases:
+#     preBuild:
+#       commands:
+#         - npm ci
+#         - npx playwright install chromium firefox || echo "Playwright installation failed"
+#     build:
+#       commands:
+#         - npm run build
+      
+#     postBuild:
+#       commands:
+#         # Comprehensive test suite for test environment
+#         - echo "Running comprehensive test suite"
+        
+#         # Unit tests with coverage
+#         - npm run test:coverage
+        
+#         # E2E tests across multiple browsers
+#         - npm run test:e2e -- --project=chromium --project=firefox
+        
+#         # Performance tests
+#         - npx playwright test --grep="performance"
+        
+#         # Accessibility tests
+#         - npx playwright test --grep="accessibility"
+        
+#         # Upload all test results
+#         - |
+#           aws s3 cp test-results/ s3://$TEST_RESULTS_BUCKET/comprehensive/$AWS_COMMIT_ID/ --recursive || echo "Failed to upload comprehensive test results"
+#           aws s3 cp playwright-report/ s3://$TEST_RESULTS_BUCKET/e2e-comprehensive/$AWS_COMMIT_ID/ --recursive || echo "Failed to upload E2E results"
+#   artifacts:
+#     baseDirectory: dist
+#     files:
+#       - '**/*'

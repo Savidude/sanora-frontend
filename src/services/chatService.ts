@@ -7,7 +7,11 @@ import { TeacherFeedback, FeedbackComponent, TeacherResponseProps, InitiationMes
  */
 export const sendMessage = async (request: PromptRequest): Promise<AgentResponse> => {
   try {
-    const response = await apiClient.post<AgentResponse>('/chat/message', request);
+    const response = await apiClient.post<AgentResponse>(
+      '/api/v1/chat/message', 
+      request,
+      { timeout: 60000 } // 60 seconds for AI processing
+    );
     return response.data;
   } catch (error) {
     throw new Error('Failed to send message to server');

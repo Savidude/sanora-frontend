@@ -51,3 +51,16 @@ public/workbox-*.js
 .cache
 temp/
 tmp/
+
+# AWS Amplify
+amplify_outputs.json
+.amplify/
+amplify/mock-data/
+amplify/.config/
+
+# AWS
+.aws-sam/
+aws-exports.js
+
+# npm
+.npm/

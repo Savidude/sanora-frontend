@@ -1,0 +1,140 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  e2e-tests:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        # Test multiple browsers for comprehensive coverage
+        browser: [chromium, firefox, webkit]
+        # Test different viewport sizes
+        viewport: [mobile, desktop]
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps ${{ matrix.browser }}
+
+    - name: Set up test environment
+      run: |
+        cp .env.example .env.test
+        echo "COGNITO_USER_POOL_ID=${{ secrets.TEST_COGNITO_USER_POOL_ID }}" >> .env.test
+        echo "COGNITO_CLIENT_ID=${{ secrets.TEST_COGNITO_CLIENT_ID }}" >> .env.test
+        echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env.test
+        echo "AWS_ACCESS_KEY_ID=${{ secrets.TEST_AWS_ACCESS_KEY_ID }}" >> .env.test
+        echo "AWS_SECRET_ACCESS_KEY=${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}" >> .env.test
+        echo "VITE_API_BASE_URL=${{ secrets.TEST_API_BASE_URL }}" >> .env.test
+
+    - name: Build application
+      run: npm run build
+      env:
+        VITE_API_BASE_URL: ${{ secrets.TEST_API_BASE_URL }}
+
+    - name: Run Playwright tests
+      run: npx playwright test --project=${{ matrix.browser }} --grep="${{ matrix.viewport }}"
+      env:
+        CI: true
+        PLAYWRIGHT_BROWSER: ${{ matrix.browser }}
+        VIEWPORT: ${{ matrix.viewport }}
+
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report-${{ matrix.browser }}-${{ matrix.viewport }}
+        path: playwright-report/
+        retention-days: 30
+
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-${{ matrix.browser }}-${{ matrix.viewport }}
+        path: test-results/
+        retention-days: 30
+
+  # Merge test results and create summary
+  test-summary:
+    if: always()
+    needs: e2e-tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      
+    - name: Generate test summary
+      run: |
+        echo "## 🧪 E2E Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Count passed/failed tests across all browsers and viewports
+        total_tests=0
+        passed_tests=0
+        
+        for report in playwright-report-*/results.json; do
+          if [ -f "$report" ]; then
+            tests=$(jq '.suites[].specs | length' "$report" 2>/dev/null || echo 0)
+            passed=$(jq '.suites[].specs[] | select(.tests[].results[].status == "passed") | length' "$report" 2>/dev/null || echo 0)
+            total_tests=$((total_tests + tests))
+            passed_tests=$((passed_tests + passed))
+          fi
+        done
+        
+        echo "- ✅ Passed: $passed_tests" >> $GITHUB_STEP_SUMMARY
+        echo "- ❌ Failed: $((total_tests - passed_tests))" >> $GITHUB_STEP_SUMMARY
+        echo "- 📊 Total: $total_tests" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ $passed_tests -eq $total_tests ]; then
+          echo "🎉 All tests passed!" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Some tests failed. Check the artifacts for details." >> $GITHUB_STEP_SUMMARY
+        fi
+
+  # Performance monitoring
+  performance-check:
+    if: github.ref == 'refs/heads/main'
+    needs: e2e-tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install Playwright
+      run: npx playwright install chromium
+      
+    - name: Run performance tests
+      run: npx playwright test --grep="performance|load time"
+      
+    - name: Upload performance results
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-results
+        path: performance-report/

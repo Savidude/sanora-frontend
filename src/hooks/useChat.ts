@@ -65,8 +65,13 @@ export const useChat = (): UseChatReturn => {
         );
 
         // Map response to new teacher response structure and add to state
+        // Ensure teacher response timestamp is after the user message
         const teacherResponse = chatService.mapApiResponseToTeacherResponse(response);
-        setFeedback(prev => [...prev, teacherResponse]);
+        const teacherTimestamp = new Date(Math.max(
+          new Date(teacherResponse.timestamp).getTime(),
+          newMessage.timestamp.getTime() + 1 // Always after user message
+        ));
+        setFeedback(prev => [...prev, { ...teacherResponse, timestamp: teacherTimestamp }]);
 
         pendingMessageRef.current = null;
       } catch (err) {

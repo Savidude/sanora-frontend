@@ -1,0 +1,522 @@
+openapi: 3.0.3
+info:
+  title: Sanora API Gateway - Authentication Integration
+  description: API specification for AWS API Gateway endpoints that require authentication
+  version: 1.0.0
+  contact:
+    name: Sanora Development Team
+    email: dev@sanora.app
+
+servers:
+  - url: https://api.sanora.app/v1
+    description: Production API Gateway
+  - url: https://api-staging.sanora.app/v1
+    description: Staging API Gateway
+  - url: https://api-dev.sanora.app/v1
+    description: Development API Gateway
+
+security:
+  - CognitoUserPool: []
+
+paths:
+  /auth/session:
+    get:
+      summary: Validate current authentication session
+      description: Validates the current user's authentication token and returns session information
+      operationId: validateSession
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: Session is valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionInfo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/refresh:
+    post:
+      summary: Refresh authentication tokens
+      description: Exchanges a valid refresh token for new access and ID tokens
+      operationId: refreshTokens
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Tokens refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /chat/messages:
+    get:
+      summary: Get chat conversation messages
+      description: Retrieves paginated list of chat messages for the authenticated user
+      operationId: getChatMessages
+      tags:
+        - Chat
+      parameters:
+        - name: limit
+          in: query
+          description: Number of messages to return (max 100)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: cursor
+          in: query
+          description: Pagination cursor for next page
+          required: false
+          schema:
+            type: string
+        - name: conversation_id
+          in: query
+          description: Specific conversation ID filter
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Messages retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessagesResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Send a new chat message
+      description: Sends a new message in the conversation and receives teacher response
+      operationId: sendChatMessage
+      tags:
+        - Chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        '201':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /user/profile:
+    get:
+      summary: Get user profile information
+      description: Retrieves the authenticated user's profile and preferences
+      operationId: getUserProfile
+      tags:
+        - User
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      summary: Update user profile
+      description: Updates the authenticated user's profile information
+      operationId: updateUserProfile
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    CognitoUserPool:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: AWS Cognito User Pool JWT token (ID token)
+
+  schemas:
+    SessionInfo:
+      type: object
+      required:
+        - userId
+        - username
+        - email
+        - tokenExpiry
+        - isValid
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: Unique user identifier from Cognito
+        username:
+          type: string
+          description: User's login identifier
+        email:
+          type: string
+          format: email
+          description: User's email address
+        tokenExpiry:
+          type: string
+          format: date-time
+          description: When the current token expires
+        isValid:
+          type: boolean
+          description: Whether the session is currently valid
+        lastActivity:
+          type: string
+          format: date-time
+          description: Timestamp of last user activity
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: Valid refresh token for the user
+        deviceInfo:
+          type: object
+          description: Optional device information for security logging
+          properties:
+            userAgent:
+              type: string
+            platform:
+              type: string
+
+    TokenResponse:
+      type: object
+      required:
+        - accessToken
+        - idToken
+        - expiresIn
+      properties:
+        accessToken:
+          type: string
+          description: New JWT access token
+        idToken:
+          type: string
+          description: New JWT ID token
+        expiresIn:
+          type: integer
+          description: Token expiry time in seconds
+        tokenType:
+          type: string
+          default: Bearer
+          description: Token type (always Bearer)
+
+    ChatMessagesResponse:
+      type: object
+      required:
+        - messages
+        - hasMore
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+        hasMore:
+          type: boolean
+          description: Whether more messages are available
+        nextCursor:
+          type: string
+          description: Cursor for next page of results
+        totalCount:
+          type: integer
+          description: Total number of messages in conversation
+
+    ChatMessage:
+      type: object
+      required:
+        - id
+        - content
+        - sender
+        - timestamp
+        - conversationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique message identifier
+        content:
+          type: string
+          description: Message text content
+        sender:
+          type: string
+          enum: [user, teacher]
+          description: Who sent the message
+        timestamp:
+          type: string
+          format: date-time
+          description: When the message was created
+        conversationId:
+          type: string
+          format: uuid
+          description: Conversation this message belongs to
+        corrections:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeacherCorrection'
+          description: Teacher corrections for this message
+
+    TeacherCorrection:
+      type: object
+      required:
+        - original
+        - corrected
+        - explanation
+      properties:
+        original:
+          type: string
+          description: Original text that needs correction
+        corrected:
+          type: string
+          description: Corrected version of the text
+        explanation:
+          type: string
+          description: Explanation of the correction
+        type:
+          type: string
+          enum: [grammar, vocabulary, pronunciation, style]
+          description: Type of correction made
+
+    SendMessageRequest:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          maxLength: 1000
+          description: Message content to send
+        conversationId:
+          type: string
+          format: uuid
+          description: Existing conversation ID (optional for new conversation)
+        language:
+          type: string
+          default: fi
+          enum: [fi, en]
+          description: Language for the conversation
+
+    MessageResponse:
+      type: object
+      required:
+        - userMessage
+        - teacherResponse
+        - conversationId
+      properties:
+        userMessage:
+          $ref: '#/components/schemas/ChatMessage'
+        teacherResponse:
+          $ref: '#/components/schemas/ChatMessage'
+        conversationId:
+          type: string
+          format: uuid
+          description: Conversation ID for this exchange
+
+    UserProfile:
+      type: object
+      required:
+        - userId
+        - email
+        - username
+        - createdAt
+        - updatedAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: Unique user identifier
+        email:
+          type: string
+          format: email
+          description: User's email address
+        username:
+          type: string
+          description: User's display name
+        firstName:
+          type: string
+          description: User's first name
+        lastName:
+          type: string
+          description: User's last name
+        preferences:
+          type: object
+          description: User preferences for learning
+          properties:
+            language:
+              type: string
+              default: fi
+              description: Target language for learning
+            difficultyLevel:
+              type: string
+              enum: [beginner, intermediate, advanced]
+              default: beginner
+            notificationsEnabled:
+              type: boolean
+              default: true
+        createdAt:
+          type: string
+          format: date-time
+          description: When the user account was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the profile was last updated
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          maxLength: 50
+        lastName:
+          type: string
+          maxLength: 50
+        preferences:
+          type: object
+          properties:
+            difficultyLevel:
+              type: string
+              enum: [beginner, intermediate, advanced]
+            notificationsEnabled:
+              type: boolean
+
+    ErrorResponse:
+      type: object
+      required:
+        - message
+        - code
+        - timestamp
+      properties:
+        message:
+          type: string
+          description: Human-readable error message
+        code:
+          type: string
+          description: Machine-readable error code
+        details:
+          type: object
+          description: Additional error details
+        timestamp:
+          type: string
+          format: date-time
+          description: When the error occurred
+        requestId:
+          type: string
+          description: Unique request identifier for debugging
+
+  responses:
+    Unauthorized:
+      description: Authentication required or token invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: "Authentication token is invalid or expired"
+            code: "AUTH_TOKEN_INVALID"
+            timestamp: "2025-11-20T10:30:00Z"
+
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: "You do not have permission to access this resource"
+            code: "INSUFFICIENT_PERMISSIONS"
+            timestamp: "2025-11-20T10:30:00Z"
+
+    BadRequest:
+      description: Invalid request data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: "Request validation failed"
+            code: "VALIDATION_ERROR"
+            timestamp: "2025-11-20T10:30:00Z"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: "The requested resource was not found"
+            code: "RESOURCE_NOT_FOUND"
+            timestamp: "2025-11-20T10:30:00Z"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: "An internal server error occurred"
+            code: "INTERNAL_ERROR"
+            timestamp: "2025-11-20T10:30:00Z"

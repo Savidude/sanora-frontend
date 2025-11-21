@@ -1,0 +1,135 @@
+/**
+ * LoginPage Styles
+ * Mobile-first responsive design with centered layout
+ */
+
+.loginPage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.container {
+  width: 100%;
+  max-width: 480px;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.appTitle {
+  margin: 0 0 0.5rem 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 400;
+}
+
+/* LoginForm Container */
+/* Additional styles if needed to override LoginForm component */
+
+/* Footer */
+.footer {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.footerText {
+  margin: 0;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.signupLink {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ffffff;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: opacity 0.2s;
+}
+
+.signupLink:hover {
+  opacity: 0.8;
+}
+
+.signupLink:focus {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Tablet (768px and up) */
+@media (min-width: 768px) {
+  .loginPage {
+    padding: 2rem;
+  }
+
+  .header {
+    margin-bottom: 2.5rem;
+  }
+
+  .appTitle {
+    font-size: 3rem;
+  }
+
+  .subtitle {
+    font-size: 1.125rem;
+  }
+
+  .footer {
+    margin-top: 2rem;
+  }
+
+  .footerText,
+  .signupLink {
+    font-size: 1rem;
+  }
+}
+
+/* Desktop (1024px and up) */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 520px;
+  }
+
+  .appTitle {
+    font-size: 3.5rem;
+  }
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .signupLink {
+    transition: none;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .loginPage {
+    background: #ffffff;
+  }
+
+  .header,
+  .footer {
+    color: #000000;
+  }
+}
