@@ -9,12 +9,22 @@ import './styles/globals.css';
  */
 async function initializeApp() {
   try {
+    // Debug: Log all environment variables
+    console.log('=== Environment Variables Debug ===');
+    console.log('VITE_COGNITO_USER_POOL_ID:', import.meta.env.VITE_COGNITO_USER_POOL_ID);
+    console.log('VITE_COGNITO_CLIENT_ID:', import.meta.env.VITE_COGNITO_CLIENT_ID);
+    console.log('VITE_AWS_REGION:', import.meta.env.VITE_AWS_REGION);
+    console.log('VITE_API_URL:', import.meta.env.VITE_API_URL);
+    console.log('All env:', import.meta.env);
+    console.log('===================================');
+
     // Load Cognito configuration from environment variables
     // (SSM requires authentication, so we can't use it for initial auth config)
     const cognitoUserPoolId = import.meta.env.VITE_COGNITO_USER_POOL_ID;
     const cognitoClientId = import.meta.env.VITE_COGNITO_CLIENT_ID;
 
     if (!cognitoUserPoolId || !cognitoClientId) {
+      console.error('Missing Cognito config - userPoolId:', cognitoUserPoolId, 'clientId:', cognitoClientId);
       throw new Error('Missing required Cognito configuration in environment variables');
     }
 
